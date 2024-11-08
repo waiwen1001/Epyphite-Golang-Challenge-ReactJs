@@ -1,8 +1,8 @@
-body { font-family: Arial, Helvetica, sans-serif; }
+body { font-family: Arial, Helvetica, sans-serif; overflow-x: hidden; }
 h1, h2, h3, h4, h5, h6 { margin: 0 }
 .alert { color: #ffdd8d; font-size: 14px; margin-bottom: 10px; }
 .container { width: 100vw; max-width: 100vw; min-height: 100vh; background: linear-gradient(135deg, rgba(251,122,142,1) 25%, rgba(48,44,139,1) 75%); }
-.login-container { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; }
+.login-container { display: flex; width: 100%; height: 100vh; align-items: center; justify-content: center; }
 .login { padding: 20px; background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 .custom-input { width: 100%; padding: 15px; font-size: 16px; border-radius: 5px; border: none; outline: none; box-shadow: 0px 0px 5px 1px #ccc; margin-bottom: 10px; box-sizing: border-box; transition: all 300ms linear; }
 .custom-input:focus { box-shadow: 0px 0px 5px 1px green; }

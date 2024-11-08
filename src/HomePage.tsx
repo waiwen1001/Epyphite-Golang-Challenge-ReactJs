@@ -42,6 +42,8 @@ function HomePage() {
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<Result[]>([])
+  const [lastUpdated, setLastUpdated] = useState('')
+  const [fetchLoading, setFetchLoading] = useState(false)
 
   useEffect(() => {
     if(loaded.current === false) {
@@ -142,13 +144,49 @@ function HomePage() {
     return (kelvin - 273.15).toFixed(2)
   }
 
+  const handleFetchData = async() => {
+    try {
+      setFetchLoading(true)
+      const response = await fetch("http://localhost:3000/api/v1/indego-data-fetch-and-store-it-db", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Token": "bike001",
+        },
+      });
+
+      setFetchLoading(false)
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetch and store successful:", data)
+        setLastUpdated(data.Data)
+        setDateTime(data.Data)
+      } else {
+        console.error("Fetch and store failed:", response.statusText)
+      }
+    } catch (error) {
+      setFetchLoading(false)
+      console.error("An error occurred:", error)
+    }
+  }
+
   return (
     <div>
       <div className='header'>
         <button className='default-btn red' disabled={logoutLoading} onClick={handleLogout}>Logout</button>
+        <button className='default-btn green' style={{ marginRight: '10px'}} disabled={fetchLoading} onClick={handleFetchData}>
+          { fetchLoading ? "Loading..." : "Fetch Indego data"}
+        </button>
       </div>
       <div className='form-container'>
         <div className='form'>
+          {
+            lastUpdated ? (
+              <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Last fetch updated at : {lastUpdated}</div>
+            ) : null
+          }
+          
           <div className='form-box'>
             <div className='custom-radio'>
               <input id="station_type_1" type="radio" name="station_type" value={1} checked={stationType === 1} onChange={() => setStationType(1)} />
@@ -185,20 +223,20 @@ function HomePage() {
                 <td>At</td>
                 <td>Kiosk Id</td>
                 <td>Geometry</td>
-                <td>Address</td>
+                <td width={150}>Address</td>
                 <td>Bikes</td>
                 <td>Temperature</td>
               </tr>
             </thead>
             <tbody>
-              {data.map((row) => (
+              {data.length > 0 ? data.map((row) => (
                 <tr key={row.stations.properties.kioskId}>
                   <td>{row.at}</td>
                   <td>{row.stations.properties.kioskId}</td>
                   <td>Latitude: {row.stations.properties.latitude} <br/>Longitude: {row.stations.properties.longitude}</td>
                   <td>{row.stations.properties.name}</td>
                   <td>
-                    {row.stations.properties.bikes.length > 0 ? (
+                    { row.stations.properties.bikes ? (
                       row.stations.properties.bikes.map((bike, index) => (
                         <div key={index} className='bike-container'>
                           <div>Docker number : { bike.dockNumber }</div>
@@ -213,7 +251,11 @@ function HomePage() {
                   </td>
                   <td>{celsius(row.weather.main.temp)}°C</td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center' }}>No data found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
